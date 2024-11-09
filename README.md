@@ -1,5 +1,3 @@
-Event Shift Management Tool
-
 ## Project Overview
 
 This upcoming web application is designed to serve as a comprehensive management tool for event managers and employees. 🎉 The primary goal of this project is to streamline the scheduling and tracking of shifts, enhancing communication and efficiency during events. 📅✨
