@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "./firebase";
 
 const UsersList = () => {
@@ -37,13 +37,25 @@ const UsersList = () => {
         }
     };
 
+    // Delete a user from Firestore
+    const deleteUser = async (id) => {
+        try {
+            await deleteDoc(doc(db, "Users", id));
+            setUsers((prev) => prev.filter((user) => user.id !== id));
+            alert("User deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        }
+    };
+
     return (
         <div>
             <h2>Users List</h2>
             <ul>
-                {users.map((user, index) => (
-                    <li key={index}>
+                {users.map((user) => (
+                    <li key={user.id}>
                         {user.fullName} - {user.role}
+                        <button onClick={() => deleteUser(user.id)}>Delete</button>
                     </li>
                 ))}
             </ul>
