@@ -1,11 +1,11 @@
 import React from "react";
-import UsersList from "./UsersList";
+import EventsList from "./EventsList";
 
 function App() {
     return (
         <div className="App">
             <h1>Event Shift Management</h1>
-            <UsersList />
+            <EventsList />
         </div>
     );
 }
