@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "ShiftEase - Manage Shifts Effectively",
-    description: "An app to manage shift registrations and notifications for youth workers.",
+    title: "ShiftEase - Manage Events Effectively",
+    description: "An app to manage event registrations and notifications for youth workers.",
 };
 
 export default function RootLayout({
@@ -42,8 +42,8 @@ export default function RootLayout({
                     <Link href="/users" className="hover:underline">
                         Users
                     </Link>
-                    <Link href="/shifts" className="hover:underline">
-                        Shifts
+                    <Link href="/events" className="hover:underline">
+                        Events
                     </Link>
                     <Link href="/profile" className="hover:underline">
                         Profile

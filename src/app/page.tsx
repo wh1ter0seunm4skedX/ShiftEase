@@ -15,9 +15,9 @@ export default function Home() {
                         View Users
                     </button>
                 </Link>
-                <Link href="/shifts" passHref>
+                <Link href="/events" passHref>
                     <button className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600">
-                        View Shifts
+                        View Events
                     </button>
                 </Link>
                 <Link href="/profile" passHref>
