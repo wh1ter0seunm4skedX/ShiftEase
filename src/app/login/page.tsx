@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../utils/supabaseClient";
 
@@ -9,6 +9,21 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (session) {
+                // If the user is already logged in, redirect to "My Profile"
+                router.push("/profile");
+            }
+        };
+
+        checkSession();
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,8 +36,7 @@ export default function LoginPage() {
         if (error) {
             setError("Login failed. Please check your credentials.");
         } else {
-            console.log("User logged in successfully:", session);
-            router.push("/profile"); // Redirect to profile after successful login
+            router.push("/profile"); // Redirect to "My Profile" after login
         }
     };
 

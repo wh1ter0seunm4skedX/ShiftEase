@@ -12,22 +12,16 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const fetchProfile = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (!session) {
+                router.push("/login"); // Redirect to login if no session
+                return;
+            }
+
             try {
-                // Check for active session
-                const {
-                    data: { session },
-                    error: sessionError,
-                } = await supabase.auth.getSession();
-
-                if (sessionError || !session) {
-                    console.error("No active session. Redirecting to login.");
-                    router.push("/login");
-                    return;
-                }
-
-                console.log("Session found:", session);
-
-                // Fetch user profile from database
                 const { data: profile, error: profileError } = await supabase
                     .from("users")
                     .select("*")
@@ -35,7 +29,6 @@ export default function ProfilePage() {
                     .single();
 
                 if (profileError || !profile) {
-                    console.error("Error fetching user profile:", profileError?.message);
                     setError("Failed to fetch profile.");
                 } else {
                     setUser(profile);
