@@ -26,7 +26,10 @@ const UserModal: React.FC<UserModalProps> = ({ user, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div
+        className="fixed inset-0 backdrop-blur-sm bg-black/30 transition-opacity duration-300"
+        onClick={onClose}
+      />
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 z-10">
         <h2 className="text-xl font-semibold mb-4">Edit User</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
