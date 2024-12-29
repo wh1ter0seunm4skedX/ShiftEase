@@ -1,12 +1,46 @@
-import React from 'react';
-import { mockUsers } from '../data/mockData';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { User } from '../types';
+import { mockUsers } from '../data/mockData';
+import UserModal from './UserModal';
+import ConfirmDialog from './ConfirmDialog';
 
 const UserManagement: React.FC = () => {
+  const [users, setUsers] = useState(mockUsers);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    show: boolean;
+    userId: string | null;
+  }>({ show: false, userId: null });
+
+  const handleEditClick = (user: User) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (userId: string) => {
+    setDeleteConfirm({ show: true, userId });
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setUsers(users.map(user => 
+      user.id === updatedUser.id ? updatedUser : user
+    ));
+    setIsModalOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirm.userId) {
+      setUsers(users.filter(user => user.id !== deleteConfirm.userId));
+      setDeleteConfirm({ show: false, userId: null });
+    }
+  };
+
   return (
     <div className="mt-8">
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {mockUsers.map((user) => (
+        {users.map((user) => (
           <motion.div
             key={user.id}
             className="bg-white rounded-lg shadow-md p-6 space-y-4"
@@ -36,6 +70,7 @@ const UserManagement: React.FC = () => {
                 className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: 'spring', stiffness: 300 }}
+                onClick={() => handleEditClick(user)}
               >
                 Edit
               </motion.button>
@@ -43,6 +78,7 @@ const UserManagement: React.FC = () => {
                 className="bg-red-600 text-white px-4 py-2 rounded-md w-full hover:bg-red-700"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: 'spring', stiffness: 300 }}
+                onClick={() => handleDeleteClick(user.id)}
               >
                 Delete
               </motion.button>
@@ -50,6 +86,22 @@ const UserManagement: React.FC = () => {
           </motion.div>
         ))}
       </div>
+      {isModalOpen && selectedUser && (
+        <UserModal
+          user={selectedUser}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleUpdateUser}
+        />
+      )}
+      {deleteConfirm.show && (
+        <ConfirmDialog
+          isOpen={deleteConfirm.show}
+          onClose={() => setDeleteConfirm({ show: false, userId: null })}
+          onConfirm={handleConfirmDelete}
+          title="Delete User"
+          message="Are you sure you want to delete this user? This action cannot be undone."
+        />
+      )}
     </div>
   );
 };
