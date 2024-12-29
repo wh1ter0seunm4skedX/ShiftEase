@@ -4,12 +4,17 @@ import { mockEvents, mockUsers } from '../data/mockData';
 import EventModal from '../components/EventModal';
 import { Event } from '../types';
 import UserManagement from '../components/UserManagement';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [events, setEvents] = useState(mockEvents);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    show: boolean;
+    eventId: string | null;
+  }>({ show: false, eventId: null });
 
   const handleOpenModal = () => {
     setSelectedEvent(null);
@@ -38,9 +43,20 @@ export default function AdminDashboard() {
     setIsModalOpen(false);
   };
 
-  const handleDeleteEvent = (id: string) => {
-    const updatedEvents = events.filter((event) => event.id !== id);
-    setEvents(updatedEvents);
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirm({ show: true, eventId: id });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirm.eventId) {
+      const updatedEvents = events.filter((event) => event.id !== deleteConfirm.eventId);
+      setEvents(updatedEvents);
+    }
+    setDeleteConfirm({ show: false, eventId: null });
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirm({ show: false, eventId: null });
   };
 
   const getRegisteredUsers = (event: Event) => {
@@ -169,7 +185,7 @@ export default function AdminDashboard() {
                       </button>
                       <button
                         className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                        onClick={() => handleDeleteEvent(event.id)}
+                        onClick={() => handleDeleteClick(event.id)}
                       >
                         Delete
                       </button>
@@ -177,6 +193,13 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+              <ConfirmDialog
+                isOpen={deleteConfirm.show}
+                onClose={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
+                title="Delete Event"
+                message="Are you sure you want to delete this event? This action cannot be undone."
+              />
               {isModalOpen && (
                 <EventModal
                   isOpen={isModalOpen}
