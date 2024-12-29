@@ -57,12 +57,20 @@ const EventModal: React.FC<EventModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0  overflow-y-auto h-full w-full backdrop-blur-sm">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            {event ? 'Edit Event' : 'Create New Event'}
-          </h3>
+    <div className="fixed inset-0 overflow-y-auto h-full w-full bg-black bg-opacity-50 z-50">
+      <div className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="bg-white w-full max-w-md rounded-lg shadow-xl p-4 md:p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg md:text-xl font-medium text-gray-900">
+              {event ? 'Edit Event' : 'Create New Event'}
+            </h3>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
           <form className="mt-2 space-y-4" onSubmit={handleSubmit}>
             <div>
               <label
@@ -128,17 +136,17 @@ const EventModal: React.FC<EventModalProps> = ({
                 required
               />
             </div>
-            <div className="items-center px-4 py-3">
+            <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 mt-6">
               <button
                 type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                className="w-full md:w-auto px-4 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
               >
                 {event ? 'Update Event' : 'Create Event'}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 ml-2"
+                className="w-full md:w-auto px-4 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
               >
                 Cancel
               </button>
