@@ -1,61 +1,43 @@
 import React from 'react';
-    import { mockUsers } from '../data/mockData';
+import { mockUsers } from '../data/mockData';
 
-    const UserManagement: React.FC = () => {
-      return (
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">User Management</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {mockUsers.map((user) => (
-                  <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.role}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-indigo-600 hover:text-indigo-900">
-                        Edit
-                      </button>
-                      <button className="text-red-600 hover:text-red-900 ml-2">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+const UserManagement: React.FC = () => {
+  return (
+    <div className="mt-8">
+      <h2 className="text-2xl font-bold mb-4">User Management</h2>
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {mockUsers.map((user) => (
+          <div
+            key={user.id}
+            className="bg-white rounded-lg shadow-md p-6 space-y-4"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0">
+                <img
+                  className="h-12 w-12 rounded-full"
+                  src={`https://i.pravatar.cc/150?u=${user.id}`}
+                  alt={user.name}
+                />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">{user.name}</h3>
+                <p className="text-gray-600">{user.email}</p>
+                <p className="text-gray-500">{user.role}</p>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                Edit
+              </button>
+              <button className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-      );
-    };
+        ))}
+      </div>
+    </div>
+  );
+};
 
-    export default UserManagement;
+export default UserManagement;

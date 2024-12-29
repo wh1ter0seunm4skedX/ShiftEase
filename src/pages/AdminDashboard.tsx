@@ -141,7 +141,7 @@ export default function AdminDashboard() {
 
           {activeSection === 'events' && (
             <>
-              <div className="flex justify-end mb-6">
+              <div className="flex justify-center mb-6">
                 <button
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-indigo-700"
                   onClick={handleOpenModal}
