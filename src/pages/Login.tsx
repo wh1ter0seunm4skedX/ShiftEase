@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+// Social icons (Google, Facebook, Twitter)
+import { FaGoogle, FaFacebookF, FaTwitter } from 'react-icons/fa';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,70 +18,141 @@ export default function Login() {
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid credentials');
+      // Clear the error after 3 seconds
+      setTimeout(() => setError(''), 3000);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center px-4 py-8 md:py-12">
-      <div className="w-full max-w-md mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-6">
-          Sign in to your account
-        </h2>
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-white">
+      {/* 
+        Curved top shape using clip-path (no inline SVG).
+        Adjust 'polygon' points to shape the curve differently.
+      */}
+      <div
+        className="absolute top-0 left-0 w-full h-1/2 bg-red-500"
+        style={{
+          clipPath: 'polygon(0 0, 100% 0, 100% 70%, 0 100%)',
+        }}
+      />
 
-        <div className="bg-white py-6 px-4 md:px-8 shadow sm:rounded-lg">
-          <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
-            )}
-            <div>
+      {/* Main content container */}
+      <div className="relative z-10 w-full max-w-sm px-6">
+        {/* Title / Branding */}
+        <div className="mb-8 text-center">
+          <h1 className="text-white text-3xl font-bold tracking-wide mb-1">
+            Login
+          </h1>
+          <p className="text-sm text-white opacity-90">
+            Welcome back! Please enter your credentials.
+          </p>
+        </div>
+
+        {/* Form card overlapping the red/white boundary */}
+        <div className="bg-white rounded-lg shadow-lg p-6 pt-8">
+          {/* Error display */}
+          {error && (
+            <div className="mb-4 text-center text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            {/* Email */}
+            <div className="mb-4">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-gray-700 text-sm font-medium mb-1"
               >
-                Email address
+                Email
               </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 
+                           placeholder-gray-400 text-gray-700 
+                           focus:outline-none focus:ring-2 focus:ring-red-400 
+                           focus:border-transparent transition"
+                placeholder="john.doe@example.com"
+              />
             </div>
 
-            <div>
+            {/* Password */}
+            <div className="mb-4">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-gray-700 text-sm font-medium mb-1"
               >
                 Password
               </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 
+                           placeholder-gray-400 text-gray-700 
+                           focus:outline-none focus:ring-2 focus:ring-red-400
+                           focus:border-transparent transition"
+                placeholder="••••••••"
+              />
             </div>
 
-            <div>
+            {/* Forgot Password + Login button row */}
+            <div className="flex items-center justify-between mb-6">
+              <a
+                href="/forgot-password"
+                className="text-sm text-gray-600 hover:text-red-400 transition"
+              >
+                Forgot Password?
+              </a>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="bg-black text-white rounded-md py-2 px-6 
+                           text-sm font-medium hover:bg-gray-800 transition
+                           focus:outline-none focus:ring-2 focus:ring-black
+                           focus:ring-offset-2"
               >
-                Sign in
+                LOGIN
               </button>
             </div>
           </form>
+
+          {/* OR divider */}
+          <div className="flex items-center my-4">
+            <div className="flex-grow h-px bg-gray-300" />
+            <span className="text-sm text-gray-500 px-2">or login with</span>
+            <div className="flex-grow h-px bg-gray-300" />
+          </div>
+
+          {/* Social buttons */}
+          <div className="flex justify-center space-x-4">
+            <button
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none 
+                         focus:ring-2 focus:ring-red-400 transition"
+              aria-label="Login with Google"
+            >
+              <FaGoogle className="text-lg text-gray-600" />
+            </button>
+            <button
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none 
+                         focus:ring-2 focus:ring-red-400 transition"
+              aria-label="Login with Facebook"
+            >
+              <FaFacebookF className="text-lg text-gray-600" />
+            </button>
+            <button
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none 
+                         focus:ring-2 focus:ring-red-400 transition"
+              aria-label="Login with Twitter"
+            >
+              <FaTwitter className="text-lg text-gray-600" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
