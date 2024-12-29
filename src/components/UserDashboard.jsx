@@ -1,6 +1,14 @@
 import React from 'react';
+    import { useNavigate } from 'react-router-dom';
 
-    function UserDashboard({ events, setEvents }) {
+    function UserDashboard({ events, setEvents, onSignOut }) {
+      const navigate = useNavigate();
+
+      const handleSignOut = () => {
+        onSignOut();
+        navigate('/');
+      };
+
       const registerForEvent = (id) => {
         setEvents(events.map(event => {
           if (event.id === id && event.registeredWorkers < event.requiredWorkers) {
@@ -13,6 +21,7 @@ import React from 'react';
       return (
         <div>
           <h1>User Dashboard</h1>
+          <button onClick={handleSignOut}>Sign Out</button>
           <ul>
             {events.map(event => (
               <li key={event.id}>

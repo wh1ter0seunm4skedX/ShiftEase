@@ -1,27 +1,48 @@
 import React, { useState } from 'react';
     import ReactDOM from 'react-dom';
-    import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+    import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
     import AdminDashboard from './components/AdminDashboard';
     import UserDashboard from './components/UserDashboard';
+    import Login from './components/Login';
     import './index.css';
 
-    const mockEvents = [
-      { id: 1, title: 'Art Workshop', date: '2023-11-01', requiredWorkers: 5, registeredWorkers: 0 },
-      { id: 2, title: 'Music Festival', date: '2023-11-05', requiredWorkers: 10, registeredWorkers: 0 },
-      { id: 3, title: 'Tech Talk', date: '2023-11-10', requiredWorkers: 3, registeredWorkers: 0 },
+    const mockUsers = [
+      { id: 1, email: 'admin@example.com', password: 'admin123', role: 'admin' },
+      { id: 2, email: 'worker1@example.com', password: 'worker123', role: 'worker' },
+      { id: 3, email: 'worker2@example.com', password: 'worker123', role: 'worker' },
+      { id: 4, email: 'worker3@example.com', password: 'worker123', role: 'worker' },
+      { id: 5, email: 'worker4@example.com', password: 'worker123', role: 'worker' },
+      { id: 6, email: 'worker5@example.com', password: 'worker123', role: 'worker' },
     ];
 
     function App() {
-      const [events, setEvents] = useState(mockEvents);
+      const [events, setEvents] = useState([]);
+      const [user, setUser] = useState(null);
+
+      const handleLogin = (email, password) => {
+        const foundUser = mockUsers.find(u => u.email === email && u.password === password);
+        if (foundUser) {
+          setUser(foundUser);
+        } else {
+          alert('Invalid credentials');
+        }
+      };
+
+      const handleSignOut = () => {
+        setUser(null);
+      };
 
       return (
         <Router>
-          <nav>
-            <Link to="/admin">Admin Dashboard</Link> | <Link to="/user">User Dashboard</Link>
-          </nav>
           <Routes>
-            <Route path="/admin" element={<AdminDashboard events={events} setEvents={setEvents} />} />
-            <Route path="/user" element={<UserDashboard events={events} setEvents={setEvents} />} />
+            <Route path="/" element={<Login onLogin={handleLogin} />} />
+            {user && user.role === 'admin' && (
+              <Route path="/admin" element={<AdminDashboard events={events} setEvents={setEvents} onSignOut={handleSignOut} />} />
+            )}
+            {user && user.role === 'worker' && (
+              <Route path="/user" element={<UserDashboard events={events} setEvents={setEvents} onSignOut={handleSignOut} />} />
+            )}
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
       );
