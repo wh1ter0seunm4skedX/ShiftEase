@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Event } from '../types';
-import { mockUsers } from '../data/mockData';
+import { useAuth } from '../contexts/AuthContext';
 
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (newEvent: Event) => void;
-  onUpdate: (updatedEvent: Event) => void;
+  onCreate: (newEvent: Omit<Event, 'id'>) => void;
+  onUpdate: (eventId: string, updatedEvent: Omit<Event, 'id'>) => void;
   event: Event | null;
 }
 
@@ -26,6 +26,8 @@ const EventModal: React.FC<EventModalProps> = ({
 
   // Add animation classes when modal opens
   const [isAnimating, setIsAnimating] = useState(false);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -67,20 +69,19 @@ const EventModal: React.FC<EventModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const newEvent: Event = {
-        id: event?.id || String(Date.now()),
+      const eventData: Omit<Event, 'id'> = {
         title: title.trim(),
         description: description.trim(),
         date,
         maxWorkers,
         registeredWorkers: event?.registeredWorkers || 0,
-        createdBy: mockUsers[0].id,
+        createdBy: user?.id || '',
       };
 
       if (event) {
-        await onUpdate(newEvent);
+        await onUpdate(event.id, eventData);
       } else {
-        await onCreate(newEvent);
+        await onCreate(eventData);
       }
       onClose();
     } catch (error) {

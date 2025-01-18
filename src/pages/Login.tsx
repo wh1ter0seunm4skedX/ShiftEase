@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import PageTransition from '../components/PageTransition';
@@ -9,17 +9,29 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      console.log('Login - User already logged in, redirecting to dashboard...');
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
     try {
+      console.log('Login - Attempting login...');
       await login(email, password);
+      console.log('Login - Login successful, redirecting to dashboard...');
       navigate('/dashboard');
     } catch (err) {
+      console.error('Login - Login error:', err);
       setError('Invalid credentials');
-      // Clear the error after 3 seconds
       setTimeout(() => setError(''), 3000);
     }
   };

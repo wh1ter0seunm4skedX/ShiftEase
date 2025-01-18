@@ -1,18 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User } from '../types';
-import { mockUsers } from '../data/mockData';
+import { getUsers, createUser, updateUser, deleteUser } from '../lib/api';
 import UserModal from './UserModal';
 import ConfirmDialog from './ConfirmDialog';
 
 const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean;
     userId: string | null;
   }>({ show: false, userId: null });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersData = await getUsers();
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleEditClick = (user: User) => {
     setSelectedUser(user);
@@ -23,17 +43,35 @@ const UserManagement: React.FC = () => {
     setDeleteConfirm({ show: true, userId });
   };
 
-  const handleUpdateUser = (updatedUser: User) => {
-    setUsers(users.map(user => 
-      user.id === updatedUser.id ? updatedUser : user
-    ));
-    setIsModalOpen(false);
+  const handleCreateUser = async (userData: Omit<User, 'id'>) => {
+    try {
+      const newUser = await createUser(userData);
+      setUsers(prevUsers => [...prevUsers, newUser]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
   };
 
-  const handleConfirmDelete = () => {
-    if (deleteConfirm.userId) {
-      setUsers(users.filter(user => user.id !== deleteConfirm.userId));
+  const handleUpdateUser = async (userId: string, userData: Partial<User>) => {
+    try {
+      const updatedUser = await updateUser(userId, userData);
+      setUsers(prevUsers =>
+        prevUsers.map(user => user.id === userId ? updatedUser : user)
+      );
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      await deleteUser(userId);
+      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
       setDeleteConfirm({ show: false, userId: null });
+    } catch (error) {
+      console.error('Error deleting user:', error);
     }
   };
 
@@ -90,14 +128,15 @@ const UserManagement: React.FC = () => {
         <UserModal
           user={selectedUser}
           onClose={() => setIsModalOpen(false)}
-          onSave={handleUpdateUser}
+          onSave={(userData) => handleUpdateUser(selectedUser.id, userData)}
+          onCreate={handleCreateUser}
         />
       )}
       {deleteConfirm.show && (
         <ConfirmDialog
           isOpen={deleteConfirm.show}
           onClose={() => setDeleteConfirm({ show: false, userId: null })}
-          onConfirm={handleConfirmDelete}
+          onConfirm={() => handleDeleteUser(deleteConfirm.userId!)}
           title="Delete User"
           message="Are you sure you want to delete this user? This action cannot be undone."
         />

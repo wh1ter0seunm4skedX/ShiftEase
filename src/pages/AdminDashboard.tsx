@@ -1,21 +1,50 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Users, Calendar, Bell, X } from 'lucide-react';
-import { mockEvents, mockUsers } from '../data/mockData';
+import { Event, User } from '../types';
+import { getEvents, getUsers, createEvent, updateEvent, deleteEvent } from '../lib/api';
 import EventModal from '../components/EventModal';
-import { Event } from '../types';
 import UserManagement from '../components/UserManagement';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
+  console.log('AdminDashboard - Current user:', user);
+
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [events, setEvents] = useState(mockEvents);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean;
     eventId: string | null;
   }>({ show: false, eventId: null });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [eventsData, usersData] = await Promise.all([
+          getEvents(),
+          getUsers()
+        ]);
+        setEvents(eventsData);
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleOpenModal = () => {
     setSelectedEvent(null);
@@ -26,49 +55,41 @@ export default function AdminDashboard() {
     setIsModalOpen(false);
   };
 
-  const handleCreateEvent = (newEvent: Event) => {
-    setEvents([...events, newEvent]);
-    setIsModalOpen(false);
+  const handleCreateEvent = async (eventData: Omit<Event, 'id'>) => {
+    try {
+      const newEvent = await createEvent(eventData);
+      setEvents(prevEvents => [...prevEvents, newEvent]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
+  };
+
+  const handleUpdateEvent = async (eventId: string, eventData: Partial<Event>) => {
+    try {
+      const updatedEvent = await updateEvent(eventId, eventData);
+      setEvents(prevEvents =>
+        prevEvents.map(event => event.id === eventId ? updatedEvent : event)
+      );
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error updating event:', error);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteEvent(eventId);
+      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+      setDeleteConfirm({ show: false, eventId: null });
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
   };
 
   const handleEditEvent = (event: Event) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
-  };
-
-  const handleUpdateEvent = (updatedEvent: Event) => {
-    const updatedEvents = events.map((event) =>
-      event.id === updatedEvent.id ? updatedEvent : event
-    );
-    setEvents(updatedEvents);
-    setIsModalOpen(false);
-  };
-
-  const handleDeleteClick = (id: string) => {
-    setDeleteConfirm({ show: true, eventId: id });
-  };
-
-  const handleConfirmDelete = () => {
-    if (deleteConfirm.eventId) {
-      const updatedEvents = events.filter((event) => event.id !== deleteConfirm.eventId);
-      setEvents(updatedEvents);
-    }
-    setDeleteConfirm({ show: false, eventId: null });
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteConfirm({ show: false, eventId: null });
-  };
-
-  const getRegisteredUsers = (event: Event) => {
-    // Mock logic to get registered users for an event
-    const registeredUsers = mockUsers.filter(
-      (user) =>
-        user.role === 'worker' &&
-        event.registeredWorkers > 0 &&
-        Math.random() > 0.5
-    );
-    return registeredUsers;
   };
 
   const handleNotificationClick = () => {
@@ -77,6 +98,17 @@ export default function AdminDashboard() {
 
   const closeSection = () => {
     setActiveSection(null);
+  };
+
+  const getRegisteredUsers = (event: Event) => {
+    // Mock logic to get registered users for an event
+    const registeredUsers = users.filter(
+      (user) =>
+        user.role === 'worker' &&
+        event.registeredWorkers > 0 &&
+        Math.random() > 0.5
+    );
+    return registeredUsers;
   };
 
   return (
@@ -219,7 +251,7 @@ export default function AdminDashboard() {
                         </motion.button>
                         <motion.button
                           className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                          onClick={() => handleDeleteClick(event.id)}
+                          onClick={() => setDeleteConfirm({ show: true, eventId: event.id })}
                           whileHover={{ scale: 1.05 }}
                           transition={{ type: 'spring', stiffness: 300 }}
                         >
@@ -231,8 +263,8 @@ export default function AdminDashboard() {
                 </motion.div>
                 <ConfirmDialog
                   isOpen={deleteConfirm.show}
-                  onClose={handleCancelDelete}
-                  onConfirm={handleConfirmDelete}
+                  onClose={() => setDeleteConfirm({ show: false, eventId: null })}
+                  onConfirm={() => handleDeleteEvent(deleteConfirm.eventId as string)}
                   title="Delete Event"
                   message="Are you sure you want to delete this event? This action cannot be undone."
                 />
@@ -243,6 +275,7 @@ export default function AdminDashboard() {
                     onCreate={handleCreateEvent}
                     onUpdate={handleUpdateEvent}
                     event={selectedEvent}
+                    users={users}
                   />
                 )}
               </>

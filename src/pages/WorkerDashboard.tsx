@@ -1,10 +1,30 @@
-import { useState } from 'react';
-import { mockEvents } from '../data/mockData';
+import React, { useState, useEffect } from 'react';
+import { getEvents } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function WorkerDashboard() {
   const { user } = useAuth();
-  const [events, setEvents] = useState(mockEvents);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventsData = await getEvents();
+        setEvents(eventsData);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleRegister = (eventId: string) => {
     const updatedEvents = events.map((event) => {

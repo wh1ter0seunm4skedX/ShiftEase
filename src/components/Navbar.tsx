@@ -13,6 +13,9 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
 
+  console.log('Navbar - Current user:', user);
+  console.log('Navbar - Current location:', location.pathname);
+
   // Check if we're on the "/login" route
   const isLoginPage = location.pathname === '/login';
 
